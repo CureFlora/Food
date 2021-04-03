@@ -190,6 +190,4 @@ new MenuCard(
   '.menu .container'
 ).render();
 
-// Testing Git remote
-
 });
