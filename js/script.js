@@ -162,48 +162,71 @@ class MenuCard {
   }
 }
 
-new MenuCard(
-  "img/tabs/vegy.jpg",
-  "vegy",
-  'Меню "Фитнес"',
-  'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-  9,
-  '.menu .container'
-).render();
+const getResource = async (url) => {
+  const res = await fetch(url);
 
-new MenuCard(
-  "img/tabs/vegy.jpg",
-  "vegy",
-  'Меню "Фитнес"',
-  'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-  9,
-  '.menu .container'
-).render();
+  if(!res.ok) {
+    throw new Error(`Could not fetch ${url}, status ${res.status}`);
+  }
 
-new MenuCard(
-  "img/tabs/vegy.jpg",
-  "vegy",
-  'Меню "Фитнес"',
-  'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-  9,
-  '.menu .container'
-).render();
+  return await res.json(); // Декодирует ответ в формате JSON
+};
+
+// getResource('http://localhost:3000/menu')
+// .then(data => createCard(data));
+
+// function createCard(data) {
+//   data.forEach(({img, altimg, title, descr, price}) => {
+//     const element = document.activeElement('div');
+
+//     element.classList.add('menu__item');
+
+//     element.innerHTML = `
+//       <img src=${img} alt=${altimg}>
+//         <h3 class="menu__item-subtitle">${title}</h3>
+//         <div class="menu__item-descr">${descr}</div>
+//         <div class="menu__item-divider"></div>
+//         <div class="menu__item-price">
+//             <div class="menu__item-cost">Цена:</div>
+//             <div class="menu__item-total"><span>${price}</span> грн/день</div>
+//       </div>
+//     `;
+
+//     document.querySelector('.menu .container').append(element);
+//   });
+// }
+
+// getResource('http://localhost:3000/menu')
+// .then(data => {
+//   data.forEach(({img, altimg, title, descr, price}) => {
+//     new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+//   });
+// });
 
 /* ---------------------------------- Forms --------------------------------- */
 
 const forms = document.querySelectorAll('form');
-
 const message = {
   loading: 'img/form/spinner.svg',
   success: 'Спасибо! Скоро мы с вами свяжемся',
   failure: 'Что то пошло не так...'
 };
-
 forms.forEach(item => {
-  postData(item);
+  bindPostData(item);
 });
 
-function postData(form) {
+const postData = async (url, data) => {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      'Content-type': 'application/json'
+    },
+    body: data
+  });
+  return await res.json(); // // Декодирует ответ в формате JSON
+};
+
+function bindPostData(form) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const statusMessage = document.createElement('img');
@@ -213,24 +236,10 @@ function postData(form) {
       margin: 0 auto;
     `;
     form.insertAdjacentElement('afterend', statusMessage);
-    
     const formData = new FormData(form);
 
-    const object = {};
-    formData.forEach(function(value, key) {
-      object[key] = value;
-    });
-    
-
-
-    fetch('server.php', {
-      method: "POST",
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(object)
-    })
-    .then(data => data.text())
+    const json = JSON.stringify(Object.fromEntries(formData.entries()));
+    postData('http://localhost:3000/requests', json)
     .then(data => {
         console.log(data);
         showThanksModal(message.success);
@@ -266,7 +275,7 @@ function showThanksModal(message) {
   }, 4000);
 }
 
-fetch('db.json')
+fetch('http://localhost:3000/menu')
 .then(data => data.json())
 .then(res => console.log(res));
 
