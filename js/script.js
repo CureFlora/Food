@@ -172,7 +172,7 @@ const getResource = async (url) => {
   return await res.json(); // Декодирует ответ в формате JSON
 };
 
-// getResource('http://localhost:3000/menu')
+// getResource('http://localhost:3000/menu');
 // .then(data => createCard(data));
 
 // function createCard(data) {
@@ -203,6 +203,12 @@ const getResource = async (url) => {
 //   });
 // });
 
+axios.get('http://localhost:3000/menu')
+.then(data => {
+      data.data.forEach(({img, altimg, title, descr, price}) => {
+      new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    });
+  });
 /* ---------------------------------- Forms --------------------------------- */
 
 const forms = document.querySelectorAll('form');
